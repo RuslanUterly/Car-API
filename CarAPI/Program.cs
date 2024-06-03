@@ -32,5 +32,4 @@ app.UseAuthorization();
 app.MapControllers();
 
 await app.MigrateDbAsync();
-
 app.Run();
