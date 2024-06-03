@@ -64,6 +64,33 @@ public class CarController(ICarRepository carRepository) : ControllerBase
         }
         return Ok("Successfull");
     }
+    
+    [HttpPut("{carId}")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(400)]
+    public async Task<IActionResult> UpdateCar(int carId, [FromBody] CarUpdateDto carUpdate)
+    {
+        if (carUpdate == null)
+            return BadRequest();
+
+        var car = await _carRepository.GetCars();
+
+        if (car.Where(c => c.Id == carId).FirstOrDefault() == null)
+        {
+            ModelState.AddModelError("", "Car not created");
+            return StatusCode(422, ModelState);
+        }
+
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        if (!await _carRepository.UpdateCar(carUpdate.ToCar(carId)))
+        {
+            ModelState.AddModelError("", "Smth went wrong");
+            return StatusCode(500, ModelState);
+        }
+        return Ok("Successfull");
+    }
 
     [HttpDelete]
     [ProducesResponseType(204)]

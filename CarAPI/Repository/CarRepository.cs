@@ -1,6 +1,7 @@
 ﻿using CarApi.Model;
 using CarAPI.Data;
 using CarAPI.Interfaces;
+using CarAPI.Mapping;
 using Microsoft.EntityFrameworkCore;
 
 namespace CarAPI.Repository;
@@ -48,7 +49,13 @@ public class CarRepository(DataContext context) : ICarRepository
 
     public async Task<bool> UpdateCar(Car car)
     {
-        await _context.Cars.ExecuteUpdateAsync(c => c.SetProperty(c => c, car));
+        await _context.Cars
+            .Where(c => c == car)
+            .ExecuteUpdateAsync(c => c
+                .SetProperty(p => p.Brand, car.Brand)
+                .SetProperty(p => p.Model, car.Model)
+                .SetProperty(p => p.Power, car.Power)
+                .SetProperty(p => p.Date, car.Date));
         return true;
     }
 }
