@@ -1,0 +1,21 @@
+@CarAPI_HostAddress = http://localhost:5234
+
+GET {{CarAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+###
+
+GET {{CarAPI_HostAddress}}/Car
+###
+
+GET {{CarAPI_HostAddress}}/Car/1
+###
+
+POST {{CarAPI_HostAddress}}/Car
+Content-Type: application/json
+
+{
+  "brand": "Nissan",
+  "model": "Teana",
+  "power": 100,
+  "date": "2010-09-10"
+}
