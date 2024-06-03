@@ -13,42 +13,42 @@ public class CarController(ICarRepository carRepository) : ControllerBase
     private readonly ICarRepository _carRepository = carRepository;
 
     [HttpGet]
-    public IActionResult GetCars()
+    public async Task<IActionResult> GetCars()
     {
-        var cars = _carRepository.GetCars().Select(c => c.ToCarDto());
+        var cars = await _carRepository.GetCars();
 
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        return Ok(cars);
+        return Ok(cars.Select(c => c.ToCarDto()));
     }
 
     [HttpGet("{id}")]
     [ProducesResponseType(400)]
-    public IActionResult GetPokemonByCategoryId(int id)
+    public async Task<IActionResult> GetCar(int id)
     {
-        if (!_carRepository.CarExists(id))
+        if (!await _carRepository.CarExists(id))
             return NotFound();
 
-        var category = _carRepository.GetCar(id).ToCarDto();
+        var category = await _carRepository.GetCar(id);
 
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        return Ok(category);
+        return Ok(category.ToCarDto());
     }
 
     [HttpPost]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
-    public IActionResult CreateCar([FromBody] CarCreateDto carCreate)
+    public async Task<IActionResult> CreateCar([FromBody] CarCreateDto carCreate)
     {
         if (carCreate == null)
             return BadRequest();
 
-        var car = _carRepository.GetCars().Where(c => c.ToCarDto() == carCreate).FirstOrDefault();
+        var car = await _carRepository.GetCars();
 
-        if (car != null)
+        if (car.Where(c => c.ToCarDto() == carCreate).FirstOrDefault() != null)
         {
             ModelState.AddModelError("", "Car already exists");
             return StatusCode(422, ModelState);
@@ -57,7 +57,7 @@ public class CarController(ICarRepository carRepository) : ControllerBase
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        if (!_carRepository.CreateCar(carCreate.ToCar()))
+        if (!await _carRepository.CreateCar(carCreate.ToCar()))
         {
             ModelState.AddModelError("", "Smth went wrong");
             return StatusCode(500, ModelState);
@@ -69,17 +69,17 @@ public class CarController(ICarRepository carRepository) : ControllerBase
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
     [ProducesResponseType(404)]
-    public IActionResult DeleteCar(int carId)
+    public async Task<IActionResult> DeleteCar(int carId)
     {
-        if (!_carRepository.CarExists(carId))
+        if (!await _carRepository.CarExists(carId))
             return NotFound();
 
-        var car = _carRepository.GetCar(carId);
+        var car = await _carRepository.GetCar(carId);
 
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        if (!_carRepository.DeleteCar(car))
+        if (!await _carRepository.DeleteCar(car))
         {
             ModelState.AddModelError("", "Smth went wrong");
             return StatusCode(500, ModelState);

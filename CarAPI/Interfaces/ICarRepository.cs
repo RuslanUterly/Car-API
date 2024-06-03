@@ -4,12 +4,12 @@ namespace CarAPI.Interfaces;
 
 public interface ICarRepository
 {
-    ICollection<Car> GetCars();
-    Car GetCar(int id);
-    bool CreateCar(Car car);
-    bool UpdateCar(Car car);
-    bool DeleteCar(Car car);
+    Task<ICollection<Car>> GetCars();
+    Task<Car> GetCar(int id);
+    Task<bool> CreateCar(Car car);
+    Task<bool> UpdateCar(Car car);
+    Task<bool> DeleteCar(Car car);
 
-    bool CarExists(int carId);
-    bool Save();
+    Task<bool> CarExists(int carId);
+    Task<bool> Save();
 }

@@ -1,6 +1,7 @@
 ﻿using CarApi.Model;
 using CarAPI.Data;
 using CarAPI.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace CarAPI.Repository;
 
@@ -8,42 +9,46 @@ public class CarRepository(DataContext context) : ICarRepository
 {
     private readonly DataContext _context = context;
 
-    public bool CarExists(int carId)
+    public async Task<bool> CarExists(int carId)
     {
-        return _context.Cars.Any(c => c.Id == carId);
+        return await _context.Cars
+            .AsNoTracking()
+            .AnyAsync(c => c.Id == carId);
     }
 
-    public bool CreateCar(Car car)
+    public async Task<bool> CreateCar(Car car)
     {
-        _context.Add(car);
-        return Save();
+        await _context.Cars.AddAsync(car);
+        return await Save();
     }
 
-    public bool DeleteCar(Car car)
+    public async Task<bool> DeleteCar(Car car)
     {
-        _context.Remove(car);
-        return Save();
+        await _context.Cars.Where(c => c == car).ExecuteDeleteAsync();
+        return true;
     }
 
-    public Car GetCar(int id)
+    public async Task<Car> GetCar(int id)
     {
-        return _context.Cars.FirstOrDefault(c => c.Id == id)!;
+        return await _context.Cars
+            .AsNoTracking()
+            .FirstOrDefaultAsync(c => c.Id == id);
     }
 
-    public ICollection<Car> GetCars()
+    public async Task<ICollection<Car>> GetCars()
     {
-        return _context.Cars.ToArray();
+        return await _context.Cars.ToArrayAsync();
     }
 
-    public bool Save()
+    public async Task<bool> Save()
     {
-        var saved = _context.SaveChanges();
+        var saved = await _context.SaveChangesAsync();
         return saved > 0 ? true : false;
     }
 
-    public bool UpdateCar(Car car)
+    public async Task<bool> UpdateCar(Car car)
     {
-        _context.Update(car);
-        return Save();
+        await _context.Cars.ExecuteUpdateAsync(c => c.SetProperty(c => c, car));
+        return true;
     }
 }
